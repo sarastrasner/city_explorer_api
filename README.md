@@ -17,9 +17,9 @@ Actual time needed to complete: 60 minutes + 30 minutes of localhost troubleshoo
 
 ## Feature Task 3: Weather
 Estimate of time needed to complete: 60 minutes
-Start time: 1:30 p.m.
-Finish time: 2:30 p.m.
-Actual time needed to complete: 60 minutes
+Start time: 2:30 p.m.
+Finish time: 4:15 p.m.
+Actual time needed to complete: 115 minutes
 
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
