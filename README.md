@@ -21,6 +21,12 @@ Start time: 2:30 p.m.
 Finish time: 4:15 p.m.
 Actual time needed to complete: 115 minutes
 
+## Feature Task 4: Errirs
+Estimate of time needed to complete: 30 minutes
+Start time: 4:15 p.m.
+Finish time: 4:30 p.m.
+Actual time needed to complete: 15 minutes
+
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
 
