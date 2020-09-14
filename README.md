@@ -13,6 +13,12 @@ Actual time needed to complete: 30 minutes
 Estimate of time needed to complete: 60 minutes
 Start time: 1:30 p.m.
 Finish time: 2:30 p.m.
+Actual time needed to complete: 60 minutes + 30 minutes of localhost troubleshooting
+
+## Feature Task 3: Weather
+Estimate of time needed to complete: 60 minutes
+Start time: 1:30 p.m.
+Finish time: 2:30 p.m.
 Actual time needed to complete: 60 minutes
 
 ## Overview
