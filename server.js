@@ -72,7 +72,7 @@ function Weather (entry) {
 
 
 function notFoundHandler(request, response) {
-  response.status(404).send('Sorry. something went wrong');
+  response.status(500).send('Sorry. something went wrong');
 }
 
 
