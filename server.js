@@ -23,6 +23,8 @@ app.get('/', function (request, response) {
 
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
+app.use('*', notFoundHandler);
+
 
 function handleLocation(request, response) {
   try {
@@ -67,6 +69,12 @@ function Weather (entry) {
   this.forecast = entry.weather.description;
   this.time = entry.datetime;
 }
+
+
+function notFoundHandler(request, response) {
+  response.status(404).send('Sorry. something went wrong');
+}
+
 
 // turn on the server
 app.listen(PORT, () => {
