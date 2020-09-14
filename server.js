@@ -22,6 +22,7 @@ app.get('/', function (request, response) {
 });
 
 app.get('/location', handleLocation);
+app.get('/weather', handleWeather);
 
 function handleLocation(request, response) {
   try {
@@ -32,7 +33,7 @@ function handleLocation(request, response) {
   }
   catch (error) {
     console.log('ERROR', error);
-    response.status(500).send('So sorry, something went wrong.');
+    response.status(500).send('Sorry, something went wrong.');
   }
 }
 
@@ -44,10 +45,28 @@ function Location(city, geoData) {
 }
 
 
-// app.get('/bananas', (request, response) => {
-//   response.send('I am bananas about bananas');
-// });
 
+function handleWeather(request,response) {
+  console.log('We are in the handleWeather function!')
+  try {
+    const getWeatherData = require('./data/weather.json');
+    const weatherData = [];
+    getWeatherData.data.forEach(entry => {
+      weatherData.push(new Weather(entry));
+    });
+    response.send(weatherData);
+  }
+  catch (error) {
+    console.log('ERROR', error);
+    response.status(500).send('Sorry, something went wrong.');
+  }
+}
+
+
+function Weather (entry) {
+  this.forecast = entry.weather.description;
+  this.time = entry.datetime;
+}
 
 // turn on the server
 app.listen(PORT, () => {
