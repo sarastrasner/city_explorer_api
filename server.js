@@ -11,7 +11,7 @@ require('dotenv').config();
 const app = express();
 
 // this lets us serve a website from a directory
-app.use(express.static('./public'));
+// app.use(express.static('./public'));
 
 // the dotenv library lets us grab the PORT var from the .env using the magic words process.env.variableName
 const PORT = process.env.PORT;
@@ -19,6 +19,29 @@ const PORT = process.env.PORT;
 app.get('/', function (request, response) {
   response.send('Hello World');
 });
+
+app.get('/location', handleLocation);
+
+function handleLocation(request, response) {
+  try {
+    const geoData = require('./data/location.json');
+    const city = request.query.city;
+    const locationData = new Location(city, geoData);
+    response.send(locationData);
+  }
+  catch (error) {
+    console.log('ERROR', error);
+    response.status(500).send('So sorry, something went wrong.');
+  }
+}
+
+function Location(city, geoData) {
+  this.search_query = city;
+  this.formatted_query = geoData[0].display_name;
+  this.latitude = geoData[0].lat;
+  this.longitude = geoData[0].lon;
+}
+
 
 // app.get('/bananas', (request, response) => {
 //   response.send('I am bananas about bananas');
