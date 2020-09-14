@@ -24,6 +24,10 @@ const PORT = process.env.PORT || 3001;
 //   response.send('I am bananas about bananas');
 // });
 
+app.get('/', function(req, res){
+  res.render('index.html');
+});
+
 // turn on the server
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
