@@ -3,6 +3,7 @@
 **Author**: Sara Strasner
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
+# Lab 6
 ## Feature Task 1: Heroku Deployment
 Estimate of time needed to complete: 60 minutes
 Start time: 1:00 p.m.
@@ -21,10 +22,17 @@ Start time: 2:30 p.m.
 Finish time: 4:15 p.m.
 Actual time needed to complete: 115 minutes
 
-## Feature Task 4: Errirs
+## Feature Task 4: Errors
 Estimate of time needed to complete: 30 minutes
 Start time: 4:15 p.m.
 Finish time: 4:30 p.m.
+Actual time needed to complete: 15 minutes
+
+# Lab 7
+## Feature Task 1: .map 
+Estimate of time needed to complete: 30 minutes
+Start time: 1:00 p.m.
+Finish time: 1:15 p.m.
 Actual time needed to complete: 15 minutes
 
 ## Overview
