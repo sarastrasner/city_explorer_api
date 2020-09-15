@@ -17,6 +17,7 @@ app.use(cors());
 //Routes
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
+// app.get('trails', handleTrails);
 app.use('*', notFoundHandler);
 
 
@@ -27,7 +28,7 @@ function handleLocation(request, response) {
     const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
     superagent.get(url)
       .then(data => {
-        console.log(data);
+        // console.log(data);
         const geoData = data.body[0];
         const location = new Location(city, geoData);
         response.send(location);
@@ -46,44 +47,37 @@ function Location(city, geoData) {
   this.longitude = geoData.lon;
 }
 
+function Weather(description, time) {
+  this.forecast = description;
+  this.time = time;
+}
 
 
-function handleWeather(request,response) {
-  let key = process.env.WEATHER_API_KEY;
-  let lat = request.query.latitude;
-  let lon = request.query.longitude;
-  const url = `http://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}`;
-  superagent.get(url)
-    .then (data => {
-      console.log(data);
-
-
-    })
+function handleWeather(request, response) {
   try {
-    const getWeatherData = require('./data/weather.json');
-    const weatherData = [];
-    getWeatherData.data.map(entry => {
-      weatherData.push(new Weather(entry));
-    });
-    response.send(weatherData);
+    const lat = request.query.latitude;
+    const lon = request.query.longitude;
+    let key = process.env.WEATHER_API_KEY;
+    const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
+    console.log(url);
+    superagent.get(url)
+      .then(results => {
+        let weatherData = results.body.data;
+        let weatherDataSlice =  weatherData.slice(0, 8);
+        response.send(weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime)));
+      })
   }
   catch (error) {
-    console.log('ERROR');
-    response.status(500).send('Sorry, something went wrong.');
+    console.log('ERROR', error);
+    response.status(500).send('So sorry, something went wrong.');
   }
 }
 
-
-function Weather (entry) {
-  this.forecast = entry.weather.description;
-  this.time = entry.datetime;
-}
 
 
 function notFoundHandler(request, response) {
   response.status(500).send('Sorry. something went wrong');
 }
-
 
 // turn on the server
 app.listen(PORT, () => {
