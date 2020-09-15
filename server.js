@@ -24,24 +24,17 @@ function handleLocation(request, response) {
   let city = request.query.city;
   let key = process.env.GEOCODE_API_KEY;
   const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
-
-  if (request[url]) {
-    response.send(request[url]);
-  }
-  else {
-    superagent.get(url)
-      .then(data => {
-        console.log(data);
-        const geoData = data.body[0];
-        const location = new Location(city, geoData);
-        request[url] = location;
-        response.send(location);
-      })
-      .catch((error) => {
-        console.log('ERROR', error);
-        response.status(500).send('So sorry, something went wrong.');
-      });
-  }
+  superagent.get(url)
+    .then(data => {
+      console.log(data);
+      const geoData = data.body[0];
+      const location = new Location(city, geoData);
+      response.send(location);
+    })
+    .catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('So sorry, something went wrong.');
+    });
 }
 
 function Location(city, geoData) {
