@@ -35,6 +35,18 @@ Start time: 1:00 p.m.
 Finish time: 1:15 p.m.
 Actual time needed to complete: 15 minutes
 
+## Feature Task 2: Locations 
+Estimate of time needed to complete: 60 minutes
+Start time: 1:15 p.m.
+Finish time: 2:30 p.m.
+Actual time needed to complete: 75 minutes
+
+## Feature Task 3: Weather 
+Estimate of time needed to complete: 60 minutes
+Start time: 2:30 p.m.
+Finish time: 4:30 p.m.
+Actual time needed to complete: 120 minutes
+
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
 
