@@ -8,7 +8,6 @@ const express = require('express');
 const superagent = require('superagent');
 const cors = require('cors');
 
-
 //Application setup
 const PORT = process.env.PORT;
 const app = express();
@@ -17,7 +16,7 @@ app.use(cors());
 //Routes
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
-// app.get('trails', handleTrails);
+app.get('/trails', handleTrails);
 app.use('*', notFoundHandler);
 
 
@@ -28,7 +27,6 @@ function handleLocation(request, response) {
     const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
     superagent.get(url)
       .then(data => {
-        // console.log(data);
         const geoData = data.body[0];
         const location = new Location(city, geoData);
         response.send(location);
@@ -52,14 +50,12 @@ function Weather(description, time) {
   this.time = time;
 }
 
-
 function handleWeather(request, response) {
   try {
     const lat = request.query.latitude;
     const lon = request.query.longitude;
     let key = process.env.WEATHER_API_KEY;
     const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
-    console.log(url);
     superagent.get(url)
       .then(results => {
         let weatherData = results.body.data;
@@ -73,7 +69,37 @@ function handleWeather(request, response) {
   }
 }
 
+function TrailMaker(object){
+  this.name = object.name;
+  this.location = object.location;
+  this.length = object.length;
+  this.stars = object.stars;
+  this.star_votes =object.star_votes;
+  this. summary = object.summary;
+  this.trail_url = object.trail_url;
+  this.conditions = object.conditionDetails;
+  this.condition_date = object.conditionDate.slice(0,9);
+  this.condition_time = object.conditionDate.slice(11,19);
+}
 
+function handleTrails(request,response) {
+  try {
+    let lat = request.query.latitude;
+    let lon = request.query.longitude;
+    let key = process.env.TRAIL_API_KEY;
+    const url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${key}`;
+    superagent.get(url)
+      .then(results => {
+        let trailData = results.body.trails;
+        console.log(trailData);
+        response.send(trailData.map(value => new TrailMaker(value)))
+      });
+  }
+  catch (error) {
+    console.log('ERROR', error);
+    response.status(500).send('So sorry, something went wrong.');
+  }
+}
 
 function notFoundHandler(request, response) {
   response.status(500).send('Sorry. something went wrong');
