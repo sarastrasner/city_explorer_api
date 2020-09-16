@@ -7,6 +7,8 @@ require('dotenv').config();
 const express = require('express');
 const superagent = require('superagent');
 const cors = require('cors');
+const pg = require('pg');
+const client = new pg.Client();
 
 //Application setup
 const PORT = process.env.PORT;
@@ -105,7 +107,13 @@ function notFoundHandler(request, response) {
   response.status(500).send('Sorry. something went wrong');
 }
 
-// turn on the server
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-});
+
+function startServer() {
+  app.listen(PORT, () => {
+    console.log('Server is listening on port', PORT);
+  });
+}
+
+client.connect()
+  .then(startServer)
+  .catch(e => console.log(e));
