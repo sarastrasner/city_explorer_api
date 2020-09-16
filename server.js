@@ -1,58 +1,55 @@
-'use strict';
+'use strict'
 
 //get environmental variables from .env
 require('dotenv').config();
 
 //pull in dependencies
+const cors = require('cors');
 const express = require('express');
 const superagent = require('superagent');
-const cors = require('cors');
-const pg = require('pg');
-const client = new pg.Client();
+let pg = require('pg');
+const client = new pg.Client(process.env.DATABASE_URL);
 
-//Application setup
+//Application Setup
 const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
 
+const dataBaseUrl = process.env.DATABASE_URL;
+let locations = [];
+
+
 //Routes
-app.get('/location', handleLocation);
-app.get('/weather', handleWeather);
-app.get('/trails', handleTrails);
-app.use('*', notFoundHandler);
+app.get('/location', handleGetLocation);
+app.get('/weather', weatherHandler);
+app.get('/trails', trailHandler);
+app.use('*', notFound);
+// constructor function
 
-
-function handleLocation(request, response) {
-  try {
-    let city = request.query.city;
-    let key = process.env.GEOCODE_API_KEY;
-    const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
-    superagent.get(url)
-      .then(data => {
-        const geoData = data.body[0];
-        const location = new Location(city, geoData);
-        response.send(location);
-      })
-  }
-  catch(error) {
-    console.log('ERROR', error);
-    response.status(500).send('So sorry, something went wrong.');
-  }
-}
-
-function Location(city, geoData) {
+function Location(city, data) {
   this.search_query = city;
-  this.formatted_query = geoData.display_name;
-  this.latitude = geoData.lat;
-  this.longitude = geoData.lon;
+  this.formatted_query = data.display_name;
+  this.latitude = data.lat;
+  this.longitude = data.lon;
 }
-
 function Weather(description, time) {
   this.forecast = description;
   this.time = time;
 }
+function Trail(object) {
+  this.name = object.name;
+  this.location = object.location;
+  this.length = object.length;
+  this.stars = object.stars;
+  this.star_votes = object.starVotes;
+  this.summary = object.summary;
+  this.trail_url = object.url;
+  this.conditions = object.conditionDetails;
+  this.condition_date = object.conditionDate.slice(0, 10);
+  this.condition_time = object.conditionDate.slice(11, 19);
+}
 
-function handleWeather(request, response) {
+function weatherHandler(request, response) {
   try {
     const lat = request.query.latitude;
     const lon = request.query.longitude;
@@ -61,7 +58,7 @@ function handleWeather(request, response) {
     superagent.get(url)
       .then(results => {
         let weatherData = results.body.data;
-        let weatherDataSlice =  weatherData.slice(0, 8);
+        let weatherDataSlice = weatherData.slice(0, 8);
         response.send(weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime)));
       })
   }
@@ -70,50 +67,72 @@ function handleWeather(request, response) {
     response.status(500).send('So sorry, something went wrong.');
   }
 }
-
-function TrailMaker(object){
-  this.name = object.name;
-  this.location = object.location;
-  this.length = object.length;
-  this.stars = object.stars;
-  this.star_votes =object.star_votes;
-  this. summary = object.summary;
-  this.trail_url = object.trail_url;
-  this.conditions = object.conditionDetails;
-  this.condition_date = object.conditionDate.slice(0,9);
-  this.condition_time = object.conditionDate.slice(11,19);
-}
-
-function handleTrails(request,response) {
+function trailHandler(request, response) {
   try {
-    let lat = request.query.latitude;
-    let lon = request.query.longitude;
+    const lat = request.query.latitude;
+    const lon = request.query.longitude;
     let key = process.env.TRAIL_API_KEY;
     const url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${key}`;
     superagent.get(url)
       .then(results => {
         let trailData = results.body.trails;
-        console.log(trailData);
-        response.send(trailData.map(value => new TrailMaker(value)))
-      });
+        response.send(trailData.map(value => new Trail(value)));
+      })
   }
   catch (error) {
     console.log('ERROR', error);
     response.status(500).send('So sorry, something went wrong.');
   }
 }
-
-function notFoundHandler(request, response) {
-  response.status(500).send('Sorry. something went wrong');
+function notFound(request, response) {
+  response.status(404).send('Sorry, Not Found');
 }
-
-
+function handleGetLocation(req, res) {
+  if (locations[req.query.city]) {
+    console.log('getting city from memory', req.query.city)
+    res.status(200).json(locations[req.query.city]);
+  }
+  else {
+    console.log('getting city from API', req.query.city)
+    let url = `https://us1.locationiq.com/v1/search.php`;
+    let queryObject = {
+      key: process.env.GEOCODE_API_KEY,
+      city: req.query.city,
+      format: 'json',
+      limit: 1
+    };
+    superagent.get(url).query(queryObject)
+      // if
+      .then(dishes => {
+        let data = dishes.body[0];
+        let location = {
+          latitude: data.lat,
+          longitude: data.lon,
+          name: data.display_name
+        };
+        // Store in the DB, please, not memory
+        // INSERT
+        locations[req.query.city] = location;
+        res.status(200).json(location);
+      })
+      // else
+      .catch(err => {
+        throw new Error(err.message);
+      })
+  }
+}
+//server is listening
+client.connect()
+  .then(startServer)
+  .catch(e => console.log(e))
 function startServer() {
   app.listen(PORT, () => {
-    console.log('Server is listening on port', PORT);
+    console.log(`Server is ALIVE and listening on port ${PORT}`);
   });
 }
 
-client.connect()
-  .then(startServer)
-  .catch(e => console.log(e));
+
+
+
+
+

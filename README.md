@@ -53,6 +53,19 @@ Start time: 4:30 p.m.
 Finish time: 5:30 p.m.
 Actual time needed to complete: 60 minutes
 
+# Lab 8
+## Feature Task 1: Database 
+Estimate of time needed to complete: 60 minutes
+Start time: 3:30 p.m.
+Finish time: 4:15 p.m.
+Actual time needed to complete: 45 minutes
+
+## Feature Task 2: Server 
+Estimate of time needed to complete: 60 minutes
+Start time: 4:15 p.m.
+Finish time: 5:00 p.m.
+Actual time needed to complete: 45 minutes
+
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
 
