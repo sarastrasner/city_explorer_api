@@ -3,6 +3,8 @@
 // this will bring in my express libraray
 const express = require('express');
 const cors = require('cors');
+const pg = require('pg');
+const client = new pg.Client();
 
 // bring in the dotenv library
 // the job of this library is to find the .env file and get the variables out of it so we can use them in our JS file
@@ -76,7 +78,12 @@ function notFoundHandler(request, response) {
 }
 
 
-// turn on the server
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-});
+function startServer() {
+  app.listen(PORT, () => {
+    console.log('Server is listening on port', PORT);
+  });
+}
+
+client.connect()
+  .then(startServer)
+  .catch(e => console.log(e));
