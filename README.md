@@ -47,6 +47,12 @@ Start time: 2:30 p.m.
 Finish time: 4:30 p.m.
 Actual time needed to complete: 120 minutes
 
+## Feature Task 4: Trails 
+Estimate of time needed to complete: 60 minutes
+Start time: 4:30 p.m.
+Finish time: 5:30 p.m.
+Actual time needed to complete: 60 minutes
+
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
 
@@ -60,7 +66,8 @@ Actual time needed to complete: 120 minutes
 Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
 9/14/20 1:32 p.m. - Application deployed to Heroku. 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+9/15/20 5:30 p.m. - Application updated with trails, weather, and location APIs.
+
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
