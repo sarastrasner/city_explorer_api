@@ -21,7 +21,7 @@ let locations = [];
 
 //Routes
 app.get('/location', handleGetLocation);
-app.get('/weather', weatherHandler);
+app.get('/weather', newWeatherHandler);
 app.get('/trails', trailHandler);
 app.use('*', notFound);
 // constructor function
@@ -49,24 +49,97 @@ function Trail(object) {
   this.condition_time = object.conditionDate.slice(11, 19);
 }
 
-function weatherHandler(request, response) {
-  try {
-    const lat = request.query.latitude;
-    const lon = request.query.longitude;
-    let key = process.env.WEATHER_API_KEY;
-    const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
-    superagent.get(url)
-      .then(results => {
-        let weatherData = results.body.data;
-        let weatherDataSlice = weatherData.slice(0, 8);
-        response.send(weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime)));
-      })
-  }
-  catch (error) {
-    console.log('ERROR', error);
-    response.status(500).send('So sorry, something went wrong.');
-  }
+// function weatherHandler(request, response) {
+//   try {
+//     const lat = request.query.latitude;
+//     const lon = request.query.longitude;
+//     const city = request.query.city;
+//     let key = process.env.WEATHER_API_KEY;
+//     const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
+//     superagent.get(url)
+//       .then(results => {
+//         let weatherData = results.body.data;
+//         let weatherDataSlice = weatherData.slice(0, 8);
+//         response.send(weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime)));
+//       })
+//   }
+//   catch (error) {
+//     console.log('ERROR', error);
+//     response.status(500).send('So sorry, something went wrong.');
+//   }
+// }
+
+function newWeatherHandler(request, response){
+  const city = request.query.search_query;
+
+  //do we have this city in the database?
+  const sql = `SELECT * FROM weather WHERE search_query=$1;`;
+
+  // if row count,
+  // if row[0]search_timestamp
+  // is it > 24 hours old from right now, delete from table and then do API call to reinsert fresh data
+  const safeValues = [city];
+
+  client.query(sql, safeValues)
+    .then(resultsFromSql => {
+      if(resultsFromSql.rowCount && Date.now() - 84600 < parseInt(resultsFromSql.rows[0].search_timestamp)){
+        console.log('pulling from database', resultsFromSql);
+        const weatherCity = resultsFromSql.rows;
+        response.status(200).send(weatherCity);
+      } else if (resultsFromSql.rowCount && Date.now() - 84600 > parseInt(resultsFromSql.rows[0].search_timestamp)) {
+        console.log('we are in the else if statement');
+        const sql = `DELETE FROM weather WHERE search_query = $1;`;
+        const safeValue = [city];
+        client.query(sql,safeValue)
+          .then(() => {
+            console.log('calling the API');
+            const lat = request.query.latitude;
+            const lon = request.query.longitude;
+            let key = process.env.WEATHER_API_KEY;
+            const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
+            console.log(url);
+            console.log(request.query);
+            superagent.get(url)
+              .then(results => {
+                let weatherData = results.body.data;
+                let weatherDataSlice = weatherData.slice(0, 8);
+                let newWeather = weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime));
+                newWeather.forEach((data) => {
+                  let sql = 'INSERT INTO weather (search_query, forecast, forecast_time, search_timestamp) VALUES ($1, $2, $3, $4);';
+                  const safeValues = [city, data.forecast, data.time, Date.now()];
+                  client.query(sql,safeValues);
+                }
+                )
+                response.status(200).send(newWeather);
+              })
+          })
+      } else {
+        console.log('calling the API');
+        const lat = request.query.latitude;
+        const lon = request.query.longitude;
+        let key = process.env.WEATHER_API_KEY;
+        const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
+        console.log(url);
+        console.log(request.query);
+        superagent.get(url)
+          .then(results => {
+            let weatherData = results.body.data;
+            let weatherDataSlice = weatherData.slice(0, 8);
+            let newWeather = weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime));
+            newWeather.forEach((data) => {
+              let sql = 'INSERT INTO weather (search_query, forecast, forecast_time, search_timestamp) VALUES ($1, $2, $3, $4);';
+              const safeValues = [city, data.forecast, data.time, Date.now()];
+              client.query(sql,safeValues);
+            }
+            )
+            response.status(200).send(newWeather);
+          })
+      }
+    })
 }
+
+
+
 function trailHandler(request, response) {
   try {
     const lat = request.query.latitude;
@@ -87,40 +160,54 @@ function trailHandler(request, response) {
 function notFound(request, response) {
   response.status(404).send('Sorry, Not Found');
 }
-function handleGetLocation(req, res) {
-  if (locations[req.query.city]) {
-    console.log('getting city from memory', req.query.city)
-    res.status(200).json(locations[req.query.city]);
-  }
-  else {
-    console.log('getting city from API', req.query.city)
-    let url = `https://us1.locationiq.com/v1/search.php`;
-    let queryObject = {
-      key: process.env.GEOCODE_API_KEY,
-      city: req.query.city,
-      format: 'json',
-      limit: 1
-    };
-    superagent.get(url).query(queryObject)
-      // if
-      .then(dishes => {
-        let data = dishes.body[0];
-        let location = {
-          latitude: data.lat,
-          longitude: data.lon,
-          name: data.display_name
-        };
-        // Store in the DB, please, not memory
-        // INSERT
-        locations[req.query.city] = location;
-        res.status(200).json(location);
-      })
-      // else
-      .catch(err => {
-        throw new Error(err.message);
-      })
-  }
+
+function handleGetLocation(request, response){
+  const city = request.query.city;
+
+  //do we have this city in the database?
+  const sql = `SELECT * FROM citydata WHERE search_query=$1;`;
+  const safeValues = [city];
+
+  client.query(sql, safeValues)
+    .then(resultsFromSql => {
+    // if we do, lets send them this city
+      if(resultsFromSql.rowCount > 0){
+        const chosenCity = resultsFromSql.rows[0];
+        console.log('found the city in the database')
+        response.status(200).send(chosenCity);
+      } else {
+        console.log('did not find the city - going to the API');
+        const url = 'https://us1.locationiq.com/v1/search.php';
+        const queryObject = {
+          key: process.env.GEOCODE_API_KEY,
+          city,
+          format: 'JSON',
+          limit: 1
+        }
+        superagent
+          .get(url)
+          .query(queryObject)
+          .then(data => {
+            console.log(data.body);
+            const place = new Location(city, data.body[0]);
+            console.log(city, place.formatted_query, place.latitude, place.longitude);
+            const sql = 'INSERT INTO citydata (search_query, formatted_search_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+            const safeValues = [city, place.formatted_query, place.latitude, place.longitude];
+
+            console.log(safeValues)
+
+            client.query(sql, safeValues);
+            response.status(200).send(place);
+          })
+      }
+    })
+    .catch(err => {
+      throw new Error(err.message);
+    })
 }
+
+
+
 //server is listening
 client.connect()
   .then(startServer)
