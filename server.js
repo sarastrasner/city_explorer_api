@@ -49,37 +49,11 @@ function Trail(object) {
   this.condition_time = object.conditionDate.slice(11, 19);
 }
 
-// function weatherHandler(request, response) {
-//   try {
-//     const lat = request.query.latitude;
-//     const lon = request.query.longitude;
-//     const city = request.query.city;
-//     let key = process.env.WEATHER_API_KEY;
-//     const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${key}`;
-//     superagent.get(url)
-//       .then(results => {
-//         let weatherData = results.body.data;
-//         let weatherDataSlice = weatherData.slice(0, 8);
-//         response.send(weatherDataSlice.map(value => new Weather(value.weather.description, value.datetime)));
-//       })
-//   }
-//   catch (error) {
-//     console.log('ERROR', error);
-//     response.status(500).send('So sorry, something went wrong.');
-//   }
-// }
 
 function newWeatherHandler(request, response){
   const city = request.query.search_query;
-
-  //do we have this city in the database?
   const sql = `SELECT * FROM weather WHERE search_query=$1;`;
-
-  // if row count,
-  // if row[0]search_timestamp
-  // is it > 24 hours old from right now, delete from table and then do API call to reinsert fresh data
   const safeValues = [city];
-
   client.query(sql, safeValues)
     .then(resultsFromSql => {
       if(resultsFromSql.rowCount && Date.now() - 84600 < parseInt(resultsFromSql.rows[0].search_timestamp)){
