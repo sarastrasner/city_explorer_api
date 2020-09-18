@@ -72,6 +72,26 @@ Start time: 4:15 p.m.
 Finish time: 5:00 p.m.
 Actual time needed to complete: 45 minutes
 
+# Lab 8 Pt II
+## Feature Task 1: Store Weather Data in Database
+Estimate of time needed to complete: 60 minutes
+Start time: 3:30 p.m.
+Finish time: 4:30 p.m.
+Actual time needed to complete: 60 minutes
+
+## Feature Task 1: Delete Weather Data older than 1 day from the Database
+Estimate of time needed to complete: 60 minutes
+Start time: 4:30 p.m.
+Finish time: 6:40 p.m.
+Actual time needed to complete: 130 minutes
+
+# Lab 8 Pt II
+## Feature Task 2: If the weather information is not in the database, add it and send it to the user
+Estimate of time needed to complete: 60 minutes
+Start time: 4:30 p.m.
+Finish time: 6:40 p.m.
+Actual time needed to complete: 130 minutes
+
 ## Overview
 Application that lets a user enter a location, and then shows weather and hiking information for that location. This app uses API keys to gather information. 
 
